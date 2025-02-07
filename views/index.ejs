@@ -1,0 +1,37 @@
+<%- include("header.ejs") %>
+
+    <!--Main Section-->
+    <main>
+        <div class="content">
+            <section>
+                <hgroup>
+                    <h2>Hand Sign Recognition with Machine Learning</h2>
+                    <h3>Real-Time Gesture Detection &amp; Robotic Hand Control</h3>
+                </hgroup>
+                <p id="main-paragraph">
+                    This system captures hand gestures using a camera, processes them with a machine learning model,
+                     and sends commands to a Raspberry Pi, which controls an Arduino-powered robotic hand.
+                </p>
+                <figure>
+                    <video id="video" src=""></video>
+                    <figcaption>Live Camera Feed</figcaption>
+                </figure>
+                <h3>Control Panel</h3>
+                <button id="startBtn">Start Recognition</button>
+                <button id="stopBtn">Stop Recognition</button>
+                <div class="status-log">
+                    <p>
+                        <strong>Recognized Sign:</strong>
+                        <span id="Sign">A sign</span>
+                    </p>
+                    <p>
+                        <strong>Terminal Output</strong>
+                        <span id="TerminalText">Terminal Text</span>
+                    </p>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+</body>
+</html>
