@@ -35,3 +35,8 @@ dist/
 
 #Ignore node_modules directory
 node_modules/
+
+#Igonre the Data
+Data/A sign
+Data/B sign
+Data/C sign

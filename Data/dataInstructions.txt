@@ -1,0 +1,28 @@
+Instructions how to collect data for the program:
+1. In dataCollection.py, in the folder variable, enter the Name of the
+    data the you collect in this format: "Data/Name".
+
+2. In order to save the data, while the program is running,
+    press "s" to save a picture of the rectangle.
+
+3. After you saved the data, go to the following url: "https://teachablemachine.withgoogle.com/"
+    and than press: Get Started => Image Project => Standard Image Model.
+    after that get a title(recommended to title this like the folder's movement name)
+    for every movement you want to train the model
+    and insert the photos.
+
+4. Press "Train Model" and wait for it to be done.
+
+5. When its done press "Export Model" and choose "Tensorflow",
+    make sure that keras is selected
+    after that press "Download my model".
+
+6. Extract the files and insert them into the Model folder
+    instead of the older files that in it.
+
+7. Make sure the in test.py the labels list is 
+    exactly like the labels.txt in the same names and order.
+
+8. Run the program and make sure that everything working!
+
+Good Luck!

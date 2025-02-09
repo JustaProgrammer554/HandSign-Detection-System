@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 
 const app = express();
-const port = 3000;
+const port = 4000;
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public")); // Static files from the "public" folder.
@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
     res.render("index.ejs");
 });
 
-app.get("/views", (req, res) => {
+app.get("/views/about.ejs", (req, res) => {
     res.render("about.ejs");
 });
 
