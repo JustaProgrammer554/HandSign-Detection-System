@@ -3,10 +3,6 @@
 *.pyo
 __pycache__/
 
-# Ignore virtual environment directories
-venv/
-env/
-
 # Ignore system files
 .DS_Store
 Thumbs.db
