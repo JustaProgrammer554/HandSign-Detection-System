@@ -4,13 +4,15 @@ import cv2
 from cvzone.HandTrackingModule import HandDetector
 from cvzone.ClassificationModule import Classifier
 from flask import Flask, Response, render_template, jsonify
+from flask_socketio import SocketIO, emit # for real time client server communication
 import numpy as np
 import math
-import subprocess
+
 
 #Script used to stream the output on the ejs video screen.
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 flask_server_port = 5000
 
 cap = cv2.VideoCapture(0)
@@ -57,8 +59,8 @@ def frame_generator():
                 wGap = math.ceil((IMGSIZE - wCal)/2) # calculate the gap to center the width of imgCrop in imgWhite
                 imgWhite[:, wGap : wCal + wGap] = imgResize  # put the imgCrop on the imgWhite
                 prediction, index = classifier.getPrediction(imgWhite, draw=False)
-                print("success")
                 #print(prediction, index) 
+                socketio.emit('sign_detected', {'sign': labels[index]})
 
             else:
                 k = IMGSIZE / w
@@ -68,6 +70,7 @@ def frame_generator():
                 hGap = math.ceil((IMGSIZE - hCal)/2) # calculate the gap to center the height of imgCrop in imgWhite
                 imgWhite[hGap : hCal + hGap, :] = imgResize  # put the imgCrop on the imgWhite
                 prediction, index = classifier.getPrediction(imgWhite, draw=False)
+                socketio.emit('sign_detected', {'sign': labels[index]})
 
             cv2.putText(imgOutput, labels[index], (x, y - 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255), 2) # detection text
             cv2.rectangle(imgOutput, (x - OFFSET, y - OFFSET), (x + w + OFFSET, y + h + OFFSET), (255, 0, 255), 3) # detection rectangle
@@ -85,10 +88,6 @@ def index():
 def video_feed():
     return Response(frame_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/start_recognition', methods=['POST'])
-def start_recognition():
-    subprocess.Popen(['python', 'test.py'])
-    return jsonify({'message': 'Recognition started'})
-
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=flask_server_port)
+    socketio.run(app)
