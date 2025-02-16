@@ -8,9 +8,6 @@ from flask_socketio import SocketIO, emit # for real time client server communic
 import numpy as np
 import math
 
-
-#Script used to stream the output on the ejs video screen.
-
 app = Flask(__name__)
 socketio = SocketIO(app)
 flask_server_port = 5000
@@ -76,7 +73,7 @@ def frame_generator():
             cv2.rectangle(imgOutput, (x - OFFSET, y - OFFSET), (x + w + OFFSET, y + h + OFFSET), (255, 0, 255), 3) # detection rectangle
 
         ret, buffer = cv2.imencode('.jpg', imgOutput)
-        frame = buffer.tobytes() #
+        frame = buffer.tobytes() 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
@@ -89,5 +86,4 @@ def video_feed():
     return Response(frame_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=flask_server_port)
-    socketio.run(app)
+    socketio.run(app, host='127.0.0.1', port=flask_server_port)
