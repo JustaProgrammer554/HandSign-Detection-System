@@ -12,6 +12,7 @@ contourpy==1.1.1
 cvzone==1.6.1
 cycler==0.12.1
 Flask==3.0.3
+flask_socketio==5.5.1
 flatbuffers==25.1.24
 fonttools==4.56.0
 gast==0.4.0
@@ -32,7 +33,7 @@ libclang==18.1.1
 Markdown==3.7
 MarkupSafe==2.1.5
 matplotlib==3.7.5
-mediapipe==0.10.11
+mediapipe==0.10.9
 ml-dtypes==0.2.0
 numpy==1.24.3
 oauthlib==3.2.2
