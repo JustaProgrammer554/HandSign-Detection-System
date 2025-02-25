@@ -81,6 +81,10 @@ def frame_generator():
 def index():
     return render_template('index.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/video_feed')
 def video_feed():
     return Response(frame_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
