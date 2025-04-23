@@ -3,14 +3,16 @@
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 from cvzone.ClassificationModule import Classifier
-from flask import Flask, Response, render_template, jsonify
 from flask_socketio import SocketIO, emit # for real time client server communication
+from flask import Flask, Response, render_template, jsonify
 import numpy as np
 import math
+import serial
+import time
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 flask_server_port = 5000
+socketio = SocketIO(app)
 
 cap = cv2.VideoCapture(0)
 detector = HandDetector(maxHands=1)
@@ -24,8 +26,10 @@ counter = 0
 
 labels = ["A Sign", "B Sign", "C Sign"]
 
-def frame_generator():
+start_time = None
+detected_sign_index = None
 
+def frame_generator():
     while True:
         success, img = cap.read() # get info from the 
         if not success: #break if the frame was not successfully captured
@@ -55,9 +59,8 @@ def frame_generator():
                 imgResizeShape = imgResize.shape
                 wGap = math.ceil((IMGSIZE - wCal)/2) # calculate the gap to center the width of imgCrop in imgWhite
                 imgWhite[:, wGap : wCal + wGap] = imgResize  # put the imgCrop on the imgWhite
-                prediction, index = classifier.getPrediction(imgWhite, draw=False)
-                #print(prediction, index) 
-                socketio.emit('sign_detected', {'sign': labels[index]})
+
+                print(prediction[index])
 
             else:
                 k = IMGSIZE / w
@@ -66,16 +69,54 @@ def frame_generator():
                 imgResizeShape = imgResize.shape
                 hGap = math.ceil((IMGSIZE - hCal)/2) # calculate the gap to center the height of imgCrop in imgWhite
                 imgWhite[hGap : hCal + hGap, :] = imgResize  # put the imgCrop on the imgWhite
-                prediction, index = classifier.getPrediction(imgWhite, draw=False)
-                socketio.emit('sign_detected', {'sign': labels[index]})
 
-            cv2.putText(imgOutput, labels[index], (x, y - 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255), 2) # detection text
+                print(prediction[index])
+
+            prediction, index = classifier.getPrediction(imgWhite, draw=False)
+            if prediction[index] > 0.9999:
+                socketio.emit('sign_detected', {'sign': labels[index]})
+                cv2.putText(imgOutput, labels[index], (x, y - 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255), 2) # detection text
+
             cv2.rectangle(imgOutput, (x - OFFSET, y - OFFSET), (x + w + OFFSET, y + h + OFFSET), (255, 0, 255), 3) # detection rectangle
+
 
         ret, buffer = cv2.imencode('.jpg', imgOutput)
         frame = buffer.tobytes() 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+def five_second_timer(start_time):
+    if (time.time() - start_time) >= 5:
+        return True
+    return False
+
+
+def send_Signal(signal):
+    ser = serial.Serial("/dev/rfcomm0", 9600, timeout=1)
+    time.sleep(2)
+    print("Connected to /dev/rfcomm0")
+
+    ser.write(signal.encode())
+    print("Message sent: ", signal)
+
+def signal_control(current_index):
+    global start_time, detected_sign_index
+    current_time = time.time()
+
+    if detected_sign_index != current_index:
+        detected_sign_index = current_index
+        start_time = current_time
+        return
+
+    if start_time and (current_time - start_time) >= 5:
+        send_Signal(str(current_index))
+        start_time = current_time + 9999
+
+def main():
+    frame_generator()
+
+if __name__ == "__main__":
+    main()
 
 @app.route('/')
 def index():
