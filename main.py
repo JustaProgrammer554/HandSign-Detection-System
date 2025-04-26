@@ -21,10 +21,14 @@ classifier = Classifier("Model/keras_model.h5", "Model/labels.txt")
 OFFSET = 20
 IMGSIZE = 300
 
+start_time = None
+detected_sign_index = None
+
 folder = "FolderPATH"
 counter = 0
 
 labels = ["A Sign", "B Sign", "C Sign"]
+arduino_data = ['a','b','c']
 
 start_time = None
 detected_sign_index = None
@@ -60,8 +64,6 @@ def frame_generator():
                 wGap = math.ceil((IMGSIZE - wCal)/2) # calculate the gap to center the width of imgCrop in imgWhite
                 imgWhite[:, wGap : wCal + wGap] = imgResize  # put the imgCrop on the imgWhite
 
-                print(prediction[index])
-
             else:
                 k = IMGSIZE / w
                 hCal = math.ceil(k * h) # calculate the height that need to be expanded
@@ -70,34 +72,32 @@ def frame_generator():
                 hGap = math.ceil((IMGSIZE - hCal)/2) # calculate the gap to center the height of imgCrop in imgWhite
                 imgWhite[hGap : hCal + hGap, :] = imgResize  # put the imgCrop on the imgWhite
 
-                print(prediction[index])
-
             prediction, index = classifier.getPrediction(imgWhite, draw=False)
             if prediction[index] > 0.9999:
                 socketio.emit('sign_detected', {'sign': labels[index]})
+                socketio.emit('data_sent', ('data', arduino_data[index]))
                 cv2.putText(imgOutput, labels[index], (x, y - 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255), 2) # detection text
 
             cv2.rectangle(imgOutput, (x - OFFSET, y - OFFSET), (x + w + OFFSET, y + h + OFFSET), (255, 0, 255), 3) # detection rectangle
-
+            signal_control(index)
 
         ret, buffer = cv2.imencode('.jpg', imgOutput)
         frame = buffer.tobytes() 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-def five_second_timer(start_time):
-    if (time.time() - start_time) >= 5:
-        return True
-    return False
-
-
-def send_Signal(signal):
+def send_Signal(message):
+    global arduino_data
     ser = serial.Serial("/dev/rfcomm0", 9600, timeout=1)
     time.sleep(2)
     print("Connected to /dev/rfcomm0")
+    message = int(message)
+    if message >= 0 and message < len(arduino_data):
+        ser.write[arduino_data[message]]
+    else:
+        pass
 
-    ser.write(signal.encode())
-    print("Message sent: ", signal)
+    print("Message sent: ", message)
 
 def signal_control(current_index):
     global start_time, detected_sign_index
@@ -111,12 +111,6 @@ def signal_control(current_index):
     if start_time and (current_time - start_time) >= 5:
         send_Signal(str(current_index))
         start_time = current_time + 9999
-
-def main():
-    frame_generator()
-
-if __name__ == "__main__":
-    main()
 
 @app.route('/')
 def index():
