@@ -5,3 +5,7 @@ socket.on('sign_detected', function(data) {
     // Update the 'Sign' span with the recognized sign
     document.getElementById('Sign').innerText = data.sign;
 });
+
+socket.on('data_sent', function(data) {
+    document.getElementById('ArduinoData').innerText = data.commData;
+});

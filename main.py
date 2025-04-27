@@ -28,7 +28,8 @@ folder = "FolderPATH"
 counter = 0
 
 labels = ["A Sign", "B Sign", "C Sign"]
-arduino_data = ['a','b','c']
+arduino_data = {'a':97, 'b':98, 'c':99} # ascii codes for 'a', 'b', 'c'
+shown_data = list(arduino_data.keys())
 
 start_time = None
 detected_sign_index = None
@@ -75,7 +76,7 @@ def frame_generator():
             prediction, index = classifier.getPrediction(imgWhite, draw=False)
             if prediction[index] > 0.9999:
                 socketio.emit('sign_detected', {'sign': labels[index]})
-                socketio.emit('data_sent', ('data', arduino_data[index]))
+                socketio.emit('data_sent', {'commData': shown_data[index]})
                 cv2.putText(imgOutput, labels[index], (x, y - 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255), 2) # detection text
 
             cv2.rectangle(imgOutput, (x - OFFSET, y - OFFSET), (x + w + OFFSET, y + h + OFFSET), (255, 0, 255), 3) # detection rectangle
@@ -88,16 +89,18 @@ def frame_generator():
 
 def send_Signal(message):
     global arduino_data
+    ascii_codes = list(arduino_data.values())
     ser = serial.Serial("/dev/rfcomm0", 9600, timeout=1)
     time.sleep(2)
     print("Connected to /dev/rfcomm0")
     message = int(message)
-    if message >= 0 and message < len(arduino_data):
-        ser.write[arduino_data[message]]
+    if message >= 0 and message < len(ascii_codes):
+        signal = chr(ascii_codes[message])
+        ser.write(signal.encode())
     else:
         pass
 
-    print("Message sent: ", message)
+    print("Message sent: ", ascii_codes[message])
 
 def signal_control(current_index):
     global start_time, detected_sign_index
@@ -109,16 +112,12 @@ def signal_control(current_index):
         return
 
     if start_time and (current_time - start_time) >= 5:
-        send_Signal(str(current_index))
+        send_Signal(current_index)
         start_time = current_time + 9999
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
 
 @app.route('/video_feed')
 def video_feed():
