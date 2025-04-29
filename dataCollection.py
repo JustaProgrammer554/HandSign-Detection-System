@@ -10,7 +10,7 @@ detector = HandDetector(maxHands = 1)
 OFFSET = 20
 IMGSIZE = 300
 
-folder = "EnterFolderName"
+folder = "Data/A Sign"
 counter = 0
 
 while True:
@@ -22,7 +22,11 @@ while True:
         x, y, w, h = hand['bbox']
 
         imgWhite = np.ones((IMGSIZE, IMGSIZE, 3), np.uint8) * 255 # creating the white background for the data img
-        imgCrop = img[y - OFFSET : y + h + OFFSET, x - OFFSET : x + w + OFFSET] # crop the hand for data img
+        y1 = max(0, y - OFFSET)
+        y2 = min(img.shape[0], y + h + OFFSET)
+        x1 = max(0, x - OFFSET)
+        x2 = min(img.shape[1], x + w + OFFSET)
+        imgCrop = img[y1:y2, x1:x2] # crop the hand for data img
 
         imgCropShape = imgCrop.shape # sizes of the imgCrop[h, w, channel]
 
@@ -55,4 +59,5 @@ while True:
         counter += 1
         cv2.imwrite(f'{folder}/Image{time.time()}.png', imgWhite) # saves the image to the file by the name of the time
         print(counter)
-
+    elif key == ord("q"):
+        break

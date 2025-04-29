@@ -25,14 +25,10 @@ start_time = None
 detected_sign_index = None
 
 folder = "FolderPATH"
-counter = 0
 
 labels = ["A Sign", "B Sign", "C Sign"]
 arduino_data = {'a':97, 'b':98, 'c':99} # ascii codes for 'a', 'b', 'c'
 shown_data = list(arduino_data.keys())
-
-start_time = None
-detected_sign_index = None
 
 def frame_generator():
     while True:
@@ -87,7 +83,7 @@ def frame_generator():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-def send_Signal(message):
+def send_Signal(message): #Send the signal to the arduino
     global arduino_data
     ascii_codes = list(arduino_data.values())
     ser = serial.Serial("/dev/rfcomm0", 9600, timeout=1)
@@ -102,7 +98,7 @@ def send_Signal(message):
 
     print("Message sent: ", ascii_codes[message])
 
-def signal_control(current_index):
+def signal_control(current_index): # Check if the sign is recognized for 5 seconds
     global start_time, detected_sign_index
     current_time = time.time()
 
@@ -115,11 +111,11 @@ def signal_control(current_index):
         send_Signal(current_index)
         start_time = current_time + 9999
 
-@app.route('/')
+@app.route('/') #Route the main page
 def index():
     return render_template('index.html')
 
-@app.route('/video_feed')
+@app.route('/video_feed') #Route for the video feed
 def video_feed():
     return Response(frame_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
 

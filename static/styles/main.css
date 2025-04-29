@@ -2,8 +2,6 @@
    /* Color Variables */ 
    --background-color: #11191f;
    --second-background-color: #1f2d38;
-   --button-color: #1095c1;
-   --button-hover-color: #1ab2e8;
    --head-text-color: #f8f9fa;
    --second-text-color: #d5dce2;
    --third-text-color: #bbc6ce;
@@ -22,7 +20,7 @@ body {
 /* Navigation Bar */
 nav {
     background-color: var(--background-color);
-    color: white;
+    color: var(--head-text-color);
     padding: 10px;
     display: flex;
     justify-content: space-between;
@@ -31,17 +29,6 @@ nav {
 
 #nav-logo {
     margin-right: 1rem;
-}
-
-#nav-links {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    list-style: none;
-    margin-right: 2rem;
-    gap: 2rem;
-    color: var(--button-color);
-    font-weight: 500;
 }
 
 /* Main Container */
@@ -105,15 +92,10 @@ figcaption {
     background: #f8f9fa;
     border: 1px solid #ddd;
     margin-top: 15px;
-    font-size: 18px;
     display: flex;
     flex-direction: column;
     text-align: left;
     font-size: 1rem;
-}
-
-.statusLog strong {
-    color: #333;
 }
 
 /* Mobile Adjustments */
@@ -128,17 +110,5 @@ figcaption {
         margin-right: 0;
         margin-bottom: 10px;
         padding-left: 0;
-    }
-
-    #nav-links {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 1rem;
-        padding-left: 0;
-        margin-left: 32px;
-    }
-
-    #nav-links li {
-        margin: 0;
     }
 }
